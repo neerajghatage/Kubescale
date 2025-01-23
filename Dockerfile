@@ -1,25 +1,23 @@
-# Use an official Python runtime as the base image
-FROM python:3.9-slim
+# Use an official Golang runtime as the base image
+FROM golang:1.18-alpine
 
 # Set the working directory in the container
 WORKDIR /app
 
-# install required packages for system
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
-    && rm -rf /var/lib/apt/lists/*
+# Install necessary packages
+RUN apk update && apk add --no-cache gcc musl-dev
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# Copy go.mod and go.sum files
+COPY go.mod go.sum ./
 
-# Install app dependencies
-RUN pip install mysqlclient
-RUN pip install --no-cache-dir -r requirements.txt
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
 
 # Copy the rest of the application code
 COPY . .
 
-# Specify the command to run your application
-CMD ["python", "app.py"]
+# Build the Go application
+RUN go build -o main .
 
+# Specify the command to run your application
+CMD ["./main"]

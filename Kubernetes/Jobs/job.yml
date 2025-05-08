@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-init
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      containers:
+      - name: mysql-init
+        image: mysql:8.0
+        command:
+        - /bin/bash
+        - -c
+        - |
+          mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD -e "
+          USE mydb;
+          CREATE TABLE messages (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          message TEXT
+          );"
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secrets
+                key: MYSQL_ROOT_PASSWORD
+      restartPolicy: Never
+

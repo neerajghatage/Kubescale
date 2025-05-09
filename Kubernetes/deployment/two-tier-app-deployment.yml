@@ -16,16 +16,30 @@ spec:
     spec:
       containers:
         - name: two-tier-app
-          image: neeraj7517/flask:latest
+          image: neeraj7517/flaskapp:final
+          envFrom:
+            - configMapRef:
+                name: app-config
           env:
-            - name: MYSQL_HOST
-              value: "10.43.209.26"          # this is your mysql's service clusture IP, Make sure to change it with yours
             - name: MYSQL_PASSWORD
-              value: "admin"
-            - name: MYSQL_USER
-              value: "root"
-            - name: MYSQL_DB
-              value: "mydb"
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: MYSQL_PASSWORD
           ports:
             - containerPort: 5000
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 5

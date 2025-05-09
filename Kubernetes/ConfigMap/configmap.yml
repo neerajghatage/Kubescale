@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  MYSQL_HOST: "mysql-0.mysql-headless" # Using StatefulSet DNS name
+  MYSQL_DB: "mydb"
+  MYSQL_USER: "dbadmin"
+

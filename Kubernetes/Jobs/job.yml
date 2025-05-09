@@ -14,11 +14,14 @@ spec:
         - -c
         - |
           mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD -e "
+          CREATE DATABASE IF NOT EXISTS mydb;
           USE mydb;
-          CREATE TABLE messages (
+          CREATE TABLE IF NOT EXISTS messages (
           id INT AUTO_INCREMENT PRIMARY KEY,
           message TEXT
-          );"
+          );
+          GRANT ALL PRIVILEGES ON mydb.* TO 'dbadmin'@'%';
+          FLUSH PRIVILEGES;"
         env:
           - name: MYSQL_ROOT_PASSWORD
             valueFrom:
@@ -26,4 +29,3 @@ spec:
                 name: mysql-secrets
                 key: MYSQL_ROOT_PASSWORD
       restartPolicy: Never
-

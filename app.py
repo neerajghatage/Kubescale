@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
@@ -30,6 +30,23 @@ def submit():
     cur.close()
     return redirect(url_for('hello'))
 
+# Add health check endpoint for liveness probe
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy"}), 200
+
+@app.route('/ready')
+def ready():
+    try:
+        # Use mysql.connection directly instead of get_db_connection()
+        cur = mysql.connection.cursor()
+        cur.close()
+        return jsonify({"status": "ready"}), 200
+    except Exception as e:
+        app.logger.error(f"Readiness check failed: {str(e)}")
+        return jsonify({"status": "not ready", "error": str(e)}), 500
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-

@@ -44,7 +44,7 @@ def ready():
         return jsonify({"status": "ready"}), 200
     except Exception as e:
         app.logger.error(f"Readiness check failed: {str(e)}")
-        return jsonify({"status": "not ready", "error": str(e)}), 500
+        return jsonify({"status": "notready", "error": str(e)}), 500
 
 
 
